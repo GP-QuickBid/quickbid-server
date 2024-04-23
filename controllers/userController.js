@@ -5,7 +5,7 @@ const { User } = require("../models");
 class UserController {
   static async registerUser(req, res, next) {
     try {
-      console.log(req.body);
+      // console.log(req.body);
       let user = await User.create(req.body);
       let { id, email } = user;
       res.status(201).json({ id, email, message: "Registered successfully" });
