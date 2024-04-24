@@ -1,4 +1,4 @@
-const { Post } = require("../models");
+const { Post, User } = require("../models");
 
 class postController {
   // Static method to create a new post
