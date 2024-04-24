@@ -24,11 +24,16 @@ class postController {
   // Static method to get all posts
   static async getAllPosts(req, res, next) {
     try {
-      const post = await Post.findAll();
-
-      res.status(200).json(post);
+      const posts = await Post.findAll({
+        include: {
+          model: User, // Menyertakan model User
+          attributes: ["id", "fullName", "email"],
+        },
+      });
+      // req.io.emit('allPosts', posts)
+      res.status(200).json(posts);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       next(error);
     }
   }
@@ -82,6 +87,25 @@ class postController {
       res.status(200).json({ message: `${post.title} success to delete` });
     } catch (error) {
       // console.log(error);
+      next(error);
+    }
+  }
+
+  static async updatePostPrice(req, res, next) {
+    try {
+      const { postId } = req.params;
+      const increment = 10000;
+      const post = await Post.findByPk(postId);
+
+      if (!post) {
+        throw { name: "NotFound" };
+      }
+
+      // Tambahkan nilai increment ke kolom price menggunakan metode increment dari Sequelize
+      let data = await post.increment("price", { by: increment });
+
+      res.status(200).json({ message: "Bid successfully placed.", data });
+    } catch (error) {
       next(error);
     }
   }
