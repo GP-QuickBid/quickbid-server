@@ -5,28 +5,18 @@ if (process.env.NODE_ENV !== "production") {
 const express = require("express");
 const app = express();
 const errorHandler = require("./middlewares/errorHandler");
-// const cors = require("cors");
-const { createServer } = require("http");
-const { Server } = require("socket.io");
-const router = require("./routers");
-const httpServer = createServer(app);
-const io = new Server(httpServer, { /* options */ });
+const cors = require("cors");
+const port = process.env.PORT || 3000;
 
-// app.use(cors());
+app.use(cors());
 
 app.use(express.json());
-app.use(express.urlencoded({extended:false}))
-app.use(router)
 
 app.use(require("./routers"));
 app.use(errorHandler);
 
-// io.on("connection", (socket) => {
-//   // ...
-// });
-
-httpServer.listen(3000, () => {
-  console.log(`running on port 3000!!`);
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
 
-module.exports = {app, io};
+module.exports = app;
