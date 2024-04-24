@@ -4,8 +4,9 @@ const router = express.Router();
 
 router.post("/create", postController.createPost);
 router.get("/getPost", postController.getAllPosts)
-router.patch("/update-sold/:postId", postController.updatePostStatus)
+router.get("/getOne/:PostId", postController.getPostById)
+router.put("/update-sold/:postId", postController.updatePostStatus)
+router.get("/delete/:UserId" , postController.deletePost)
 
-// router.post("/login", UserController.loginUser);
 
 module.exports = router;

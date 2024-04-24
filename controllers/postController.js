@@ -9,7 +9,6 @@ class postController {
 
             const post = await Post.create({ title, description, imageUrl, price, UserId });
 
-
             // Kirim notifikasi ke semua klien bahwa post baru telah dibuat
             // io.emit('newPost', { post });
 
@@ -25,28 +24,29 @@ class postController {
     static async getAllPosts(req, res, next) {
         try {
             const post = await Post.findAll();
-            // return posts;
 
             // Kirim data post ke klien melalui socket
             // io.emit('allPosts', { post });
 
             res.status(200).json({ post })
         } catch (error) {
-            console.log(error);
-            res.send(error)
+            // console.log(error);
+            // res.send(error)
+            next(error)
         }
     }
 
     // Static method to get a post by id
     static async getPostById(req, res, next) {
         try {
-            const post = await Post.findByPk();
-            if (!post) {
-                throw new Error("Post not found");
-            }
-            return post;
+            const { postId } = req.params
+            const post = await Post.findByPk(postId);
+
+            if (!post) throw { name: "NotFound" };
+
+            res.status(200).json({ post })
         } catch (error) {
-            throw new Error("Failed to get post: " + error.message);
+            next(error)
         }
     }
 
@@ -57,35 +57,43 @@ class postController {
 
             const post = await Post.findByPk(postId);
 
-            if (!post) throw { name: 'post is undefined' }
+            if (!post) throw { name: "NotFound" };
 
             await post.update({ status: "sold" });
 
             // Kirim notifikasi ke semua klien bahwa status post telah diperbarui
             // io.emit('postStatusUpdated', { postId, status: "sold" });
 
-            res.status(200).json({ message: 'Status has been updated to "sold".', post })
+            res.status(200).json({ message: 'Status has been updated to SOLD.', post })
         } catch (error) {
-            console.log(error);
-            res.send(error)
+            // console.log(error);
+            // res.send(error)
+            next(error)
         }
     }
 
+
     // Static method to delete a post by id
-    /*
+    // ini belum bisa karna belum buat auth
     static async deletePost(req, res, next) {
         try {
-            const post = await Post.findByPk();
-            if (!post) {
-                throw new Error("Post not found");
-            }
+            const { id } = req.user
+            const { UserId } = req.params
+
+            const post = await Post.findOne({ where: { UserId } });
+
+            if (!post) throw { name: "NotFound" };
+
             await post.destroy();
-            return { message: "Post deleted successfully" };
+
+            res.status(200).json({ post })
         } catch (error) {
-            throw new Error("Failed to delete post: " + error.message);
+            // res.send(error)
+            // console.log(error);
+            next(error)
         }
     }
-    */
+
 };
 
 module.exports = postController;
