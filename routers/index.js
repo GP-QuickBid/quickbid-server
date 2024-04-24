@@ -9,4 +9,7 @@ router.get("/", (req, res) => {
 //USER
 router.use("/", require("./userRoute"));
 
+//POST
+router.use("/post", require("./postRoute"))
+
 module.exports = router;
