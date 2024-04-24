@@ -1,4 +1,5 @@
-const { Post } = require("../models");
+const io = require("../app");
+const { Post, User } = require("../models");
 
 class postController {
   // Static method to create a new post
@@ -24,11 +25,17 @@ class postController {
   // Static method to get all posts
   static async getAllPosts(req, res, next) {
     try {
-      const post = await Post.findAll();
+      // const posts = await Post.findAll();
+      const posts = await Post.findAll({
+        include: {
+          model: User, // Menyertakan model User
+          attributes: ['id', 'fullName', 'email']
+        }
+      });
 
-      res.status(200).json(post);
+      res.status(200).json(posts);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       next(error);
     }
   }
@@ -53,7 +60,7 @@ class postController {
 
       const post = await Post.findByPk(id);
 
-      if (!post) throw { name: "NotFound" };
+      if (!post) throw { name: "Not Found" };
 
       await post.update({ status: "sold" });
 
@@ -75,7 +82,7 @@ class postController {
       const { id } = req.params;
 
       const post = await Post.findOne({ where: { id } });
-      if (!post) throw { name: "NotFound" };
+      if (!post) throw { name: "Not Found" };
 
       await post.destroy({ where: { id: req.params.id } });
 
@@ -83,6 +90,23 @@ class postController {
     } catch (error) {
       // console.log(error);
       next(error);
+    }
+  }
+
+  static async updatePostPrice(req, res, next) {
+    try {
+      const { postId, } = req.params
+      const increment = 100000
+      const post = await Post.findByPk(postId);
+
+      if (!post) throw { name: 'NotFound' }
+
+      // Tambahkan nilai increment ke kolom price menggunakan metode increment dari Sequelize
+      await post.increment('price', { by: increment });
+
+      res.status(200).json({ message: 'Bid successfully placed.' });
+    } catch (error) {
+      next(error)
     }
   }
 }
