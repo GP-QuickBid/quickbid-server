@@ -37,6 +37,7 @@ io.on("connection", (socket) => {
         include: {
           model: User,
           attributes: ["id", "fullName", "email"],
+          order: [["id", "ASC"]],
         },
       });
       socket.emit("allUsers", posts); // Mengirimkan semua data ke client yang spesifik
