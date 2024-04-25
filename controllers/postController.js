@@ -1,3 +1,4 @@
+const io = require("../app");
 const { Post, User } = require("../models");
 
 class postController {
@@ -24,13 +25,14 @@ class postController {
   // Static method to get all posts
   static async getAllPosts(req, res, next) {
     try {
+      // const posts = await Post.findAll();
       const posts = await Post.findAll({
         include: {
           model: User, // Menyertakan model User
-          attributes: ["id", "fullName", "email"],
-        },
+          attributes: ['id', 'fullName', 'email']
+        }
       });
-      // req.io.emit('allPosts', posts)
+
       res.status(200).json(posts);
     } catch (error) {
       console.log(error);
@@ -58,7 +60,7 @@ class postController {
 
       const post = await Post.findByPk(id);
 
-      if (!post) throw { name: "NotFound" };
+      if (!post) throw { name: "Not Found" };
 
       await post.update({ status: "sold" });
 
@@ -80,7 +82,7 @@ class postController {
       const { id } = req.params;
 
       const post = await Post.findOne({ where: { id } });
-      if (!post) throw { name: "NotFound" };
+      if (!post) throw { name: "Not Found" };
 
       await post.destroy({ where: { id: req.params.id } });
 
@@ -93,20 +95,18 @@ class postController {
 
   static async updatePostPrice(req, res, next) {
     try {
-      const { postId } = req.params;
-      const increment = 10000;
+      const { postId, } = req.params
+      const increment = 100000
       const post = await Post.findByPk(postId);
 
-      if (!post) {
-        throw { name: "NotFound" };
-      }
+      if (!post) throw { name: 'NotFound' }
 
       // Tambahkan nilai increment ke kolom price menggunakan metode increment dari Sequelize
-      let data = await post.increment("price", { by: increment });
+      await post.increment('price', { by: increment });
 
-      res.status(200).json({ message: "Bid successfully placed.", data });
+      res.status(200).json({ message: 'Bid successfully placed.' });
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 }

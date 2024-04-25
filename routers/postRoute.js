@@ -5,7 +5,7 @@ const { authorization } = require("../middlewares/authorize");
 const router = express.Router();
 
 router.post("/", authentication, postController.createPost);
-router.get("/", authentication, postController.getAllPosts);
+router.get("/",  postController.getAllPosts);
 router.get("/:id", authentication, postController.getPostById);
 router.post("/:postId", authentication, postController.updatePostPrice);
 
@@ -16,6 +16,10 @@ router.put(
   postController.updatePostStatus
 );
 
+router.post("/:postId", postController.updatePostPrice);
+
 router.delete("/:id", authentication, authorization, postController.deletePost);
+
+
 
 module.exports = router;
