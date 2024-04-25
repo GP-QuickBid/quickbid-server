@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(3000, () => {
+httpServer.listen(port, () => {
   console.log(`running on port ${port}!!`);
 });
 
