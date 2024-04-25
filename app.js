@@ -10,7 +10,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "https://gp-quickbid.web.app/"],
+    origin: ["http://localhost:5173", "https://gp-quickbid.web.app"],
   },
 });
 const { Post, User } = require("./models");
@@ -19,6 +19,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const cors = require("cors");
 const socketAuthentication = require("./middlewares/socketAuthenticate");
 const { log } = require("console");
+
 const port = process.env.PORT || 3000;
 
 app.use(cors());
