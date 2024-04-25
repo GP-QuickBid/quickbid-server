@@ -18,6 +18,7 @@ const { Post, User } = require('./models')
 const errorHandler = require("./middlewares/errorHandler");
 const cors = require("cors");
 const socketAuthentication = require("./middlewares/socketAuthenticate");
+const { log } = require("console");
 const port = process.env.PORT || 3000;
 
 app.use(cors());
@@ -46,13 +47,28 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('createData', async (newData) => {
+  socket.on("bidPost", async (id) => {
     try {
-      const createdData = await Post.create(newData);
-      socket.emit('dataCreated', createdData); // Mengirimkan data yang baru dibuat ke client yang spesifik
-      io.emit('allData', await Post.findAll()); // Mengirimkan semua data terbaru ke semua client
+      // Hapus post dari database
+      const increment = 10000;
+      const post = await Post.findByPk(id);
+      let data = await post.increment("price", { by: increment });
+      // Emit event delete ke client yang sesuai
+      io.emit("postBid", id);
     } catch (error) {
       console.log(error);
+    }
+  });
+
+  socket.on("deletePost", async (id) => {
+    try {
+      // Hapus post dari database
+      await Post.destroy({ where: { id } });
+
+      // Emit event delete ke semua client untuk memperbarui tampilan
+      io.emit("postDeleted", id);
+    } catch (error) {
+      console.error("Error deleting post:", error);
     }
   });
 });
