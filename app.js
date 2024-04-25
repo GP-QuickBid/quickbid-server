@@ -10,7 +10,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://gp-quickbid.web.app/"],
   },
 });
 const { Post, User } = require("./models");
@@ -37,8 +37,8 @@ io.on("connection", (socket) => {
         include: {
           model: User,
           attributes: ["id", "fullName", "email"],
-          order: [["id", "ASC"]],
         },
+        order: [["id", "ASC"]],
       });
       socket.emit("allUsers", posts); // Mengirimkan semua data ke client yang spesifik
       io.emit("allData", posts); // Mengirimkan semua data ke semua client
@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
 });
 
 httpServer.listen(3000, () => {
-  console.log(`running on port 3000!!`);
+  console.log(`running on port ${port}!!`);
 });
 
 module.exports = io;
