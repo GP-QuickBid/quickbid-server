@@ -2,18 +2,18 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-const { createServer } = require('http')
-const { Server } = require('socket.io')
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 
 const express = require("express");
 const app = express();
-const httpServer = createServer(app)
+const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173"
-  }
-})
-const { Post, User } = require('./models')
+    origin: "http://localhost:5173",
+  },
+});
+const { Post, User } = require("./models");
 
 const errorHandler = require("./middlewares/errorHandler");
 const cors = require("cors");
@@ -28,33 +28,38 @@ app.use(express.json());
 app.use(require("./routers"));
 app.use(errorHandler);
 
-
 // io.use(socketAuthentication)
 
-io.on('connection', (socket) => {
-  socket.on('getAllUsers', async () => {
+io.on("connection", (socket) => {
+  socket.on("getAllUsers", async () => {
     try {
       const posts = await Post.findAll({
         include: {
           model: User,
-          attributes: ['id', 'fullName', 'email']
-        }
+          attributes: ["id", "fullName", "email"],
+        },
       });
-      socket.emit('allUsers', posts); // Mengirimkan semua data ke client yang spesifik
-      io.emit('allData', posts); // Mengirimkan semua data ke semua client
+      socket.emit("allUsers", posts); // Mengirimkan semua data ke client yang spesifik
+      io.emit("allData", posts); // Mengirimkan semua data ke semua client
     } catch (error) {
-      console.log('Error fetching posts:', error);
+      console.log("Error fetching posts:", error);
     }
   });
 
   socket.on("bidPost", async (id) => {
     try {
-      // Hapus post dari database
-      const increment = 10000;
       const post = await Post.findByPk(id);
-      let data = await post.increment("price", { by: increment });
-      // Emit event delete ke client yang sesuai
-      io.emit("postBid", id);
+      const newPrice = post.price + 10000;
+      await post.update({ price: newPrice });
+      io.emit("postBid", { id, price: newPrice });
+      const posts = await Post.findAll({
+        include: {
+          model: User,
+          attributes: ["id", "fullName", "email"],
+        },
+        order: [["id", "ASC"]],
+      });
+      io.emit("dataBaru", posts);
     } catch (error) {
       console.log(error);
     }
